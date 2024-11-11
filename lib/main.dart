@@ -12,10 +12,11 @@ class DigitalWatchStoreApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Digital Watch Store',
       initialRoute: '/',
       routes: {
-        '/': (context) => HomeScreen(),
+        '/': (context) => Home(),
         '/product-list': (context) => ProductListScreen(),
         '/product-detail': (context) {
           final product = ModalRoute.of(context)!.settings.arguments as Product;
