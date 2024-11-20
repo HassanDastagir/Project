@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "477265545245",
+    "project_id": "hd-store-ef0fc",
+    "storage_bucket": "hd-store-ef0fc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:477265545245:android:8e52e64b032e04ebabdef4",
+        "android_client_info": {
+          "package_name": "com.example.midproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6sO9LKeclVjwaaEN6KHHiF9n0vqfHsjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

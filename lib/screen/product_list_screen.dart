@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../models/product.dart';
 import '../widgets/product_tile.dart';
 
@@ -11,13 +13,30 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   ViewType _selectedViewType = ViewType.list;
+  List<Product> products = [];
 
-  final List<Product> products = [
-    Product(name: 'Digital watch D900', image: 'assets/img1.jfif', price: 1500, description: 'Best watch for connectivity.'),
-    Product(name: 'Digital watch I8 ultra', image: 'assets/img2.jfif', price: 2000, description: 'Enjoy immersive audio and plush cushioning for maximum comfort.'),
-    Product(name: 'Digital Watch S9 ultra', image: 'assets/img3.jfif', price: 1250, description: 'Unleash powerful battery and display experience.'),
-    Product(name: 'Digital watch I9 pro', image: 'assets/img5.jpg', price: 2560, description: 'Best for connectivity and good sound.'),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    final url = Uri.parse('http://192.168.100.188:3000/products'); // Node.js backend URL
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          products = jsonData.map((e) => Product.fromJson(e)).toList();
+        });
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +94,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ),
               ),
               Expanded(
-                child: _buildSelectedView(),
+                child: products.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : _buildSelectedView(),
               ),
             ],
           ),
@@ -106,28 +127,23 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Widget _buildSelectedView() {
     switch (_selectedViewType) {
       case ViewType.grid:
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.6, // Set specific height for the grid view
-          width: double.infinity, // Set the width to match the screen width
-          padding: const EdgeInsets.all(4.0),
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Keeps 2 items per row
-              mainAxisSpacing: 4.0, // Reduced space between rows
-              crossAxisSpacing: 4.0, // Reduced space between columns
-              childAspectRatio: 1.0, // Aspect ratio for smaller height
-            ),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              Product product = products[index];
-              return ProductTile(
-                product: product,
-                onTap: () {
-                  Navigator.pushNamed(context, '/product-detail', arguments: product);
-                },
-              );
-            },
+        return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // 2 items per row
+            mainAxisSpacing: 4.0, // Reduced space between rows
+            crossAxisSpacing: 4.0, // Reduced space between columns
+            childAspectRatio: 1.0, // Aspect ratio for smaller height
           ),
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            Product product = products[index];
+            return ProductTile(
+              product: product,
+              onTap: () {
+                Navigator.pushNamed(context, '/product-detail', arguments: product);
+              },
+            );
+          },
         );
 
       case ViewType.scroll:
